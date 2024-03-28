@@ -10,7 +10,6 @@ public class Main {
     public static int K;
     public static ArrayList<Integer> sensors;
     public static ArrayList<Integer> distances;
-    public static ArrayList<int []> topK;
 
     public static void main(String[] args) throws NumberFormatException, IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -34,11 +33,6 @@ public class Main {
 
         //distance 기준으로 역순 정렬 (-> 간격 가장 큰 K-1개 선정 위해)
         Collections.sort(distances, Collections.reverseOrder());
-        topK = new ArrayList<>();
-//        //간격 가장 큰 K-1개 저장
-//        for(int i = 0; i < K-1; i++) {
-//            topK.add(distances.get(i));
-//        }
 
         //K-1 개의 간격 빼고 나머지 간격들의 합 계산
         int result = 0;
