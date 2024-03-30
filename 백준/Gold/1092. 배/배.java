@@ -34,7 +34,6 @@ public class Main {
 
         int result = 0;
         int boxIdx;
-        int tmpIdx;
 
         //각 박스를 순서대로 가장 높은 무게 옮길 수 있는 크레인부터 배치
         while(!boxes.isEmpty()) {
@@ -59,9 +58,7 @@ public class Main {
                    }
 
                    if(boxIdx < boxes.size() && boxes.get(boxIdx) <= crane) {
-                       tmpIdx = boxIdx;
                        boxes.remove(boxIdx);
-                       boxIdx = tmpIdx;
                    }
 
                }
