@@ -1,56 +1,67 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Main {
-	public static int N, M, cheese, cnt, time;
-	public static int[][] map;
-	public static boolean[][] v;
-	public static int[] dx = { -1, 1, 0, 0 };
-	public static int[] dy = { 0, 0, -1, 1 };
+    public static void main(String[] args) throws IOException {
 
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] input = br.readLine().split(" ");
 
-		N = Integer.parseInt(st.nextToken());
-		M = Integer.parseInt(st.nextToken());
-		map = new int[N][M];
-		for (int i = 0; i < N; i++) {
-			st = new StringTokenizer(br.readLine());
-			for (int j = 0; j < M; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
-				if (map[i][j] == 1)
-					cheese++;
-			}
-		}
-		while (cheese != 0) {
-			time++;
-			cnt = cheese;
-			meltingCheese();
-		}
-		System.out.println(time);
-		System.out.println(cnt);
-	}
+        int n = Integer.parseInt(input[0]);
+        int m = Integer.parseInt(input[1]);
 
-	public static void meltingCheese() {
-		Queue<int[]> que = new LinkedList<int[]>();
-		que.offer(new int[] { 0, 0 });
-		v = new boolean[N][M];
-		v[0][0] = true;
-		while (!que.isEmpty()) {
-			int[] cur = que.poll();
-			for (int i = 0; i < 4; i++) {
-				int nx = cur[0] + dx[i];
-				int ny = cur[1] + dy[i];
-				if (nx < 0 || nx >= N || ny < 0 || ny >= M || v[nx][ny]) continue;
-				if (map[nx][ny] == 1) {
-					cheese--;
-					map[nx][ny] = 0;
-				} else if (map[nx][ny] == 0) {
-					que.offer(new int[] { nx, ny });
-				}
-				v[nx][ny] = true;
-			}
-		}
-	}
+        int[][] map = new int[n][m];
+        int cheeseNum = 0;
+
+        for (int i = 0; i < n; i++) {
+            String[] inputs = br.readLine().split(" ");
+            for (int j = 0; j < m; j++) {
+                map[i][j] = Integer.parseInt(inputs[j]);
+                if (map[i][j] == 1) cheeseNum += 1;
+            }
+        }
+
+        int[] nx = {0, 0, 1, -1};
+        int[] ny = {1, -1, 0, 0};
+
+        int time = 0;
+        int result = 0;
+
+        while (cheeseNum > 0) {
+            result = cheeseNum; // while 루프 내에서 cheeseNum이 감소하기 직전 값을 저장
+            Queue<int[]> pos = new LinkedList<>();
+            boolean[][] visited = new boolean[n][m];
+            pos.offer(new int[] {0, 0});
+            visited[0][0] = true;
+
+            time += 1;
+
+            while (!pos.isEmpty()) {
+
+                int[] posNow = pos.poll();
+
+                for (int i = 0; i < 4; i++) {
+                    int dx = posNow[0] + nx[i];
+                    int dy = posNow[1] + ny[i];
+
+                    if (dx < 0 || dx >= n || dy < 0 || dy >= m || visited[dx][dy]) continue;
+
+                    if (map[dx][dy] == 0) {
+                        pos.offer(new int[] {dx, dy});
+                    }
+                    else if (map[dx][dy] == 1) {
+                        cheeseNum -= 1;
+                        map[dx][dy] = 0;
+                    }
+                    visited[dx][dy] = true;
+                }
+            }
+        }
+
+        System.out.println(time);
+        System.out.println(result);
+    }
 }
