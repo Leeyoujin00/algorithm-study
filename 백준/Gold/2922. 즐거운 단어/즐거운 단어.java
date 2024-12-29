@@ -1,39 +1,53 @@
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Main {
-    static String s;
-    static long cnt = 0;
 
-    static boolean isMo(char ch) {
-        return ch == 'A' || ch == 'E' || ch == 'I' || ch == 'O' || ch == 'U';
+    static String str;
+    static long count = 0;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        str = br.readLine();
+
+        backtracking(0,0,0,false,1);
+        System.out.print(count);
     }
 
-    static boolean isJa(char ch) {
-        return !isMo(ch);
-    }
+    static void backtracking(int idx, int vNum, int cNum, boolean l, long num) {
 
-    static void dfs(int idx, int mo, int ja, boolean l, long c) {
-        if (mo >= 3 || ja >= 3) return;
-        if (idx == s.length()) {
-            if (l) cnt += c;
+        if (vNum >= 3 || cNum >= 3) return;
+        if (idx == str.length()) {
+            if (l) count += num;
             return;
         }
 
-        char currentChar = s.charAt(idx);
+        char currentChar = str.charAt(idx);
+        // 빈칸일 경우
         if (currentChar == '_') {
-            dfs(idx + 1, mo + 1, 0, l, c * 5); // 모음 대체
-            dfs(idx + 1, 0, ja + 1, l, c * 20); // 자음 대체
-            dfs(idx + 1, 0, ja + 1, true, c); // 'L' 대체
-        } else {
-            dfs(idx + 1, isMo(currentChar) ? mo + 1 : 0, isJa(currentChar) ? ja + 1 : 0, l || currentChar == 'L', c);
+            // 모음으로 채우기
+            backtracking(idx+1, vNum+1, 0, l, num*5);
+            // 자음으로 채우기
+            backtracking(idx+1, 0, cNum+1, l, num*20);
+            // L로 채우기
+            backtracking(idx+1, 0, cNum+1, true, num);
+        }
+
+        // 알파벳일 경우
+        else {
+            backtracking(idx+1, isVowels(currentChar) ? vNum+1 : 0 , isCons(currentChar) ? cNum+1 : 0, currentChar == 'L' || l, num);
         }
     }
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        s = scanner.nextLine();
+    static boolean isVowels(char c) {
+        if (c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U') return true;
+        return false;
+    }
 
-        dfs(0, 0, 0, false, 1);
-        System.out.println(cnt);
+    static boolean isCons(char c) {
+        return !isVowels(c);
     }
 }
+
+
