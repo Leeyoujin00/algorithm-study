@@ -1,128 +1,93 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
-    public static Deque<int[]> deq1;
-    public static Deque<int[]> deq2;
-    public static int[][] tomatos;
-    public static int M;
-    public static int N;
-    public static int maxDay;
+    static int n,m;
+    static int[][] arr;
+    static Queue<int[]> que = new LinkedList<>();
+    static boolean[][] v;
+    static int[] dx = {0,0,1,-1};
+    static int[] dy = {1,-1,0,0};
+    static int rest = 0;
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        String[] readLine = br.readLine().split(" ");
-        M = Integer.parseInt(readLine[0]);
-        N = Integer.parseInt(readLine[1]);
-
-        deq1 = new LinkedList<>();
-        deq2 = new LinkedList<>();
-        tomatos = new int[N][M];
-        // 토마토 배열 인자로 받음
-        for (int i = 0; i < N; i++) {
-            readLine = br.readLine().split(" ");
-            for (int j = 0; j < M; j++) {
-                tomatos[i][j] = Integer.parseInt(readLine[j]);
-                if (tomatos[i][j] == 1) {
-                    deq1.add(new int[] {i, j});
+        m = Integer.parseInt(st.nextToken());
+        n = Integer.parseInt(st.nextToken());
+        arr = new int[n][m];
+        v = new boolean[n][m];
+        for (int i = 0; i < n; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < m; j++) {
+                arr[i][j] = Integer.parseInt(st.nextToken());
+                if (arr[i][j] == 1) {
+                    que.offer(new int[] {i,j});
+                    v[i][j] = true;
                 }
+                if (arr[i][j] == 0) rest++;
             }
         }
 
-        int result = bfs() - 1;
-        if (getAnswer() == -1) {
-            System.out.println(-1);
-        }
-        else {
-            System.out.println(result);
-        }
+        int result = bfs();
+        // 토마토가 다 익지는 못할 경우
+        if (rest > 0) System.out.print(-1);
+        else System.out.print(result);
+
+//        for (int i = 0; i < n; i++) {
+//            for (int j = 0; j < m; j++) {
+//                System.out.print(arr[i][j] + " ");
+//            }
+//            System.out.println();
+//        }
 
 
     }
 
-    public static int bfs() {
-        int x = 0;
-        int y = 0;
+    static int bfs() {
 
         int day = 0;
+        boolean flag = true;
 
-        // 큐 2개 모두 비어있을 때까지 반복 진행
-        while (!deq1.isEmpty() || !deq2.isEmpty()) {
-            day += 1;
-            if (day % 2 == 1) {
-                // 반복 횟수가 홀수이면 deq1에 원소가 있음
-                while (!deq1.isEmpty()) {
-                    x = deq1.peek()[0];
-                    y = deq1.pop()[1];
+        List<int[]> newTomato = new ArrayList<>();
+        while (true) {
+            flag = false;
+            // 하루마다 바로 이전에 익은 토마토들만 큐에 있음
+            while (!que.isEmpty()) {
+                int[] cur = que.poll();
 
-                    // 꺼낸 위치의 상하좌우 위치의 토마토에 1 전파
-                    if (x + 1 < N) {
-                        propagate(x + 1, y, 2);
+                for (int i = 0; i < 4; i++) {
+                    int nx = cur[0] + dx[i];
+                    int ny = cur[1] + dy[i];
+
+                    if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+                        continue;
                     }
-                    if (y + 1 < M) {
-                        propagate(x, y + 1, 2);
+
+                    // 주변에 익지 않은 토마토가 있을 경우, 익은 상태 전파
+                    if (arr[nx][ny] == 0 && !v[nx][ny]) {
+                        v[nx][ny] = true;
+                        newTomato.add(new int[] {nx, ny});
+                        rest--;
+                        flag = true;
                     }
-                    if (x - 1 >= 0) {
-                        propagate(x - 1, y, 2);
-                    }
-                    if (y - 1 >= 0) {
-                        propagate(x, y - 1, 2);
-                    }
+
                 }
             }
-            // 반복 횟수가 짝수이면 deq2에 원소가 있음
-            else if (day % 2 == 0) {
-                while (!deq2.isEmpty()) {
-                    x = deq2.peek()[0];
-                    y = deq2.pop()[1];
+            if (!flag) break;
 
-                    // 꺼낸 위치의 상하좌우 위치의 토마토에 1 전파
-                    if (x + 1 < N) {
-                        propagate(x + 1, y, 1);
-                    }
-                    if (y + 1 < M) {
-                        propagate(x, y + 1, 1);
-                    }
-                    if (x - 1 >= 0) {
-                        propagate(x - 1, y, 1);
-                    }
-                    if (y - 1 >= 0) {
-                        propagate(x, y - 1, 1);
-                    }
-                }
+            for (int[] t : newTomato) {
+                que.offer(t);
+                arr[t[0]][t[1]] = 1;
             }
+            newTomato.clear();
+            day++;
         }
 
         return day;
     }
-
-    public static void propagate(int x, int y, int deqNum) {
-        // 토마토 배열의 [x][y] 위치에 익지 않은 토마토(0)가 있을 때
-        if(tomatos[x][y] == 0) {
-            // 해당 위치의 토마토에 1을 전파
-            if (deqNum == 1) {
-                tomatos[x][y] = 1;
-                deq1.add(new int[] {x, y});
-            }
-            else if (deqNum == 2) {
-                tomatos[x][y] = 1;
-                deq2.add(new int[] {x, y});
-            }
-        }
-    }
-
-    public static int getAnswer() {
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                if (tomatos[i][j] == 0) {
-                    return -1;
-                }
-            }
-        }
-        return 1;
-    }
-
-
 }
