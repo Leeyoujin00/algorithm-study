@@ -6,85 +6,72 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 public class Main {
-
-    static int n;
-    static int m;
-    static List<int[]> house;
-    static List<int[]> chicken;
-    static int chickenNum = 0;
-    static boolean[] visited;
-    static int min = 3000;
+    static int n,m;
+    static int[][] arr;
+    static List<int[]> chickenPos = new ArrayList<>();
+    static List<int[]> housePos = new ArrayList<>();
+    static int[] d;
+    static int[] selected;
+    static int min = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws IOException {
-
-        /**
-         * 30 * 13 * 13
-         */
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
 
-        house = new ArrayList<>();
-        chicken = new ArrayList<>();
-
-
-        for (int i = 1; i <= n; i++) {
+        arr = new int[n][n];
+        for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 1; j <= n; j++) {
-                int s = Integer.parseInt(st.nextToken());
-                if (s == 1) { // 집 위치 저장
-                    house.add(new int[] {i,j});
+            for (int j = 0; j < n; j++) {
+                arr[i][j] = Integer.parseInt(st.nextToken());
+                if (arr[i][j] == 2) {
+                    // 치킨집 위치 저장
+                    chickenPos.add(new int[] {i,j});
                 }
-                else if (s == 2) { // 치킨집 위치 저장
-                    chicken.add(new int[] {i,j});
-                    chickenNum++;
+                else if (arr[i][j] == 1) {
+                    // 집 위치 저장
+                    housePos.add(new int[] {i,j});
                 }
             }
         }
 
-        visited = new boolean[chickenNum];
-        for (int i = 1; i <= m; i++) {
-            combination(visited, 0, 0, i);
-        }
+        d = new int[chickenPos.size()];
 
-        System.out.print(min);
-
+        selected = new int[m];
+        backtracking(0, 0);
+        System.out.println(min);
     }
 
-    static void combination(boolean[] visited, int start, int r, int m) {
+    // 치킨집 m개를 선택
+    static void backtracking(int start, int r) {
 
         if (r == m) {
-            calculate(visited);
+            min = Math.min(min, getMinD());
             return;
         }
 
-        for (int i = start; i < chickenNum; i++) {
-            if (!visited[i]) {
-                visited[i] = true;
-                combination(visited, i+1, r+1, m);
-                visited[i] = false;
-            }
+        for (int i = start; i < chickenPos.size(); i++) {
+            selected[r] = i;
+            backtracking(i+1, r+1);
         }
     }
 
-    static void calculate(boolean[] visited) {
+    // 각각의 집과 가장 가까운 치킨집과의 거리들의 합
+    static int getMinD() {
 
-        int d = 0;
-
-        for (int i = 0; i < house.size(); i++) {
-            int minC = 100;
-            for (int j = 0; j < chickenNum; j++) {
-                if (visited[j]) {
-                    minC = Math.min(minC, Math.abs(chicken.get(j)[0] - house.get(i)[0]) + Math.abs(chicken.get(j)[1] - house.get(i)[1]));
-                }
+        int sum = 0;
+        for (int i = 0; i < housePos.size(); i++) {
+            int min = 2500;
+            int d;
+            for (int j = 0; j < m; j++) {
+                d = Math.abs(chickenPos.get(selected[j])[0] - housePos.get(i)[0]) + Math.abs(chickenPos.get(selected[j])[1] - housePos.get(i)[1]);
+                min = Math.min(min, d);
             }
-            d += minC;
+            sum += min;
         }
 
-        min = Math.min(d, min);
+        return sum;
     }
-
-
 }
