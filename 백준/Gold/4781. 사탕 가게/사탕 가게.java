@@ -43,12 +43,9 @@ public class Main {
                 }
             }
 
-            int max = 0;
-            for (int i = 1; i <= m; i++) {
-                max = Math.max(max, dp[i]);
-            }
+           
 
-            ans.add(max);
+            ans.add(dp[m]);
         }
 
         for (int a : ans) {
