@@ -1,12 +1,8 @@
-SELECT 
-    d.ID, 
-    d.EMAIL, 
-    d.FIRST_NAME, 
-    d.LAST_NAME
-FROM 
-    DEVELOPERS d
-WHERE 
-    (d.SKILL_CODE & (SELECT s.CODE FROM SKILLCODES s WHERE s.NAME = 'Python')) <> 0
-    OR (d.SKILL_CODE & (SELECT s.CODE FROM SKILLCODES s WHERE s.NAME = 'C#')) <> 0
-ORDER BY 
-    d.ID ASC;
+select id, email, first_name, last_name
+from developers
+where skill_code & (select code 
+                   from skillcodes where name = 'Python') != 0 
+                   or
+      skill_code & (select code 
+                   from skillcodes where name = 'C#') <> 0
+order by id asc;
