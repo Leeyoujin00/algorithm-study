@@ -2,108 +2,98 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-
     static int n,m;
     static int[][] arr;
     static int[] dx = {0,0,1,-1};
     static int[] dy = {1,-1,0,0};
 
     public static void main(String[] args) throws IOException {
-
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
-        arr = new int[n][m];
 
+        arr = new int[n][m];
         for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < m; j++) {
                 arr[i][j] = Integer.parseInt(st.nextToken());
-//                if (arr[i][j] > 0) {
-//                    sNum++;
-//                }
             }
         }
 
+
         int year = 0;
-
         while (true) {
-
             year++;
+            // 빙하 녹임
             bfs();
 
-            int c = countIceBerg();
-            if (c > 1) {
-                System.out.print(year);
-                break;
-            }
-            else if (c == 0) {
+            // 덩어리 수 1이면 계속 진행
+            int iceberg = countIceberg();
+            if (iceberg == 0) {
                 System.out.print(0);
                 break;
             }
+
+            if (iceberg > 1) {
+                System.out.print(year);
+                break;
+            }
         }
 
-        //System.out.println(0);
     }
 
     // 빙하 녹이는 함수
-    static void bfs() {
+    private static void bfs() {
 
-        Queue<int[]> q = new LinkedList<>();
         boolean[][] visited = new boolean[n][m];
-        // 모든 빙하의 좌표 큐에 삽입
+        Queue<int[]> que = new LinkedList<>(); // 빙하 좌표 저장
+        // 빙하 있는 칸 표시
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
                 if (arr[i][j] != 0) {
-                    q.offer(new int[] {i,j});
                     visited[i][j] = true;
+                    que.offer(new int[] {i,j});
                 }
             }
         }
 
-        while (!q.isEmpty()) {
+        while(!que.isEmpty()) {
 
-            int r = q.peek()[0];
-            int c = q.poll()[1];
-            int seaNum = 0;
+            int x = que.peek()[0];
+            int y = que.poll()[1];
 
+            int seaCount = 0;
             for (int i = 0; i < 4; i++) {
-                int nr = r + dy[i];
-                int nc = c + dx[i];
-                if (0 > nr || nr >= n || 0 > nc || nc >= m) {
-                    continue;
-                }
-                // 주변 위치가 바다일 경우
-                if (!visited[nr][nc]) {
-                    seaNum++;
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+
+                // 동서남북 방향의 바다 개수 count
+                if (nx >= 0 && nx < n && ny >= 0 && ny < m && arr[nx][ny] == 0 && !visited[nx][ny]) {
+                    seaCount++;
                 }
             }
 
-            if (arr[r][c] <= seaNum) {
-                arr[r][c] = 0;
-            }
-            else {
-                arr[r][c] -= seaNum;
-            }
+            arr[x][y] -= seaCount;
+            if (arr[x][y] < 0) arr[x][y] = 0;
         }
-
 
     }
 
-    static int countIceBerg() {
-
+    // 빙산 덩어리 개수 구하는 함수
+    private static int countIceberg() {
         boolean[][] visited = new boolean[n][m];
 
         int count = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                if (arr[i][j] != 0 && !visited[i][j]) {
+                if (!visited[i][j] && arr[i][j] != 0) {
                     dfs(i,j,visited);
                     count++;
                 }
@@ -113,16 +103,18 @@ public class Main {
         return count;
     }
 
-    // 분리된 빙하 개수 구하기
-    static void dfs(int y, int x, boolean[][] visited) {
-
-        visited[y][x] = true;
-
+    // 빙산 개수 구하기 위해 호출
+    private static void dfs(int x, int y, boolean[][] visited) {
+        visited[x][y] = true;
         for (int i = 0; i < 4; i++) {
-            int ny = y+dy[i];
-            int nx = x+dx[i];
-            if (0 <= ny && ny < n && 0 <= nx && nx < m && !visited[ny][nx] && arr[ny][nx] != 0) {
-                dfs(ny,nx,visited);
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m) {
+                continue;
+            }
+            if (arr[nx][ny] != 0 && !visited[nx][ny]) {
+                dfs(nx,ny,visited);
             }
         }
     }
