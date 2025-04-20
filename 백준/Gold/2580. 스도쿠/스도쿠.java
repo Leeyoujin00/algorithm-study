@@ -29,8 +29,8 @@ public class Main {
 
         // 마지막 열까지 왔으면, 다음 행으로 진행
         if (col == 9) {
-            sudoku(row+1, 0);
-            return;
+            row++;
+            col = 0;
         }
 
         // 마지막 행까지 왔으면, 결과 출력
