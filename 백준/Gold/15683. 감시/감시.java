@@ -1,240 +1,147 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 public class Main {
+    static int n,m;
+    static int[][] map;
+    // 상우하좌
+    static int[] dx = {-1,0,1,0};
+    static int[] dy = {0,1,0,-1};
+    static List<Cctv> cctvList = new ArrayList<>();
+    static int cnt = 0;
+    static int min = 100;
 
-    static int n;
-    static int m;
-    static int arr[][];
-    static int emt = 0;
-    static List<int[]> cctv;
-    static boolean[][] visited;
-    static boolean[] vCC;
-    static boolean[][] v;
+    static class Cctv {
+        int x;
+        int y;
+        int type; //
+        //int dir; // 회전 후 방향 (상/하/좌/우)
 
-    static int min = 64;
-    // 상하좌우
-    static int[] dy = {1, -1, 0, 0};
-    static int[] dx = {0, 0, -1, 1};
-    //
-    static int[] dy2 = {1, 0,-1, 0};
-    static int[] dx2 = {0, 1, 0, -1};
-
-    static int[] dx3 = {};
-    static int[] dy3 = {};
+        public Cctv(int x, int y, int type) {
+            this.x = x;
+            this.y = y;
+            this.type = type;
+        }
+    }
 
     public static void main(String[] args) throws IOException {
-
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
+        map = new int[n][m];
 
-        cctv = new ArrayList<>();
-        arr = new int[n][m];
         for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < m; j++) {
-                arr[i][j] = Integer.parseInt(st.nextToken());
-                if (arr[i][j] == 0) {
-                    emt++;
-                }
-                else if (arr[i][j] < 6) { // cctv 위치 및 번호 저장
-                    cctv.add(new int[] {arr[i][j],i,j});
-                    //cctvN++;
+                map[i][j] = Integer.parseInt(st.nextToken());
+                // cctv 정보 저장
+                if (0 < map[i][j] && map[i][j] < 6) {
+                    cctvList.add(new Cctv(i,j,map[i][j]));
+                    cnt++;
                 }
             }
         }
 
-        vCC = new boolean[cctv.size()];
-        visited = new boolean[cctv.size()][];
-        for (int i = 0; i < visited.length; i++) {
-            if (cctv.get(i)[0] == 2) { // 2번 cctv
-                visited[i] = new boolean[2];
-            }
-            else if (cctv.get(i)[0] == 5) { // 5번 cctv
-                visited[i] = new boolean[1];
-            }
-            else { // 1,3,4번 cctv
-                visited[i] = new boolean[4];
-            }
-        }
+        int[] directions = new int[cnt];
+        rotate(directions, 0);
 
-        int[] selected = new int[cctv.size()];
-        rotation(0,0,selected);
-        // 4, 2, 4, 4, 1
         System.out.print(min);
     }
 
-    static void rotation(int start, int r, int[] selected) { //각 cctv 회전
-
-        if (r == cctv.size()) { // 모든 cctv의 방향 설정 완료
-            // 사각지대 크기 계산
-//            for (int i = 0; i < r; i++) {
-//                System.out.print(selected[i] + " ");
-//            }
-            //System.out.println();
-            calculation(selected);
-
+    // cctv들의 방향을 설정한다.
+    private static void rotate(int[] directions, int r) {
+        // 모든 cctv들의 방향 설정을 마쳤다면
+        if (r == cnt) {
+            min = Math.min(min, calculate(directions));
             return;
         }
 
-        for (int c = start; c < cctv.size(); c++) {
-            if (!vCC[c]) {
-                vCC[c] = true;
-                if (cctv.get(r)[0] == 2) { // 2번 cctv
-                    for (int i = 0; i < 2; i++) {
-                        if (!visited[r][i]) {
-                            visited[r][i] = true;
-                            selected[r] = i;
-                            rotation(c+1, r+1, selected);
-                            visited[r][i] = false;
-                        }
-                    }
-                }
-                else if (cctv.get(r)[0] == 5) { // 5번 cctv
-                    for (int i = 0; i < 1; i++) {
-                        if (!visited[r][i]) {
-                            visited[r][i] = true;
-                            selected[r] = i;
-                            rotation(c+1, r+1, selected);
-                            visited[r][i] = false;
-                        }
-                    }
-                }
-                else { // 1,3,4번 cctv
-                    for (int i = 0; i < 4; i++) {
-                        if (!visited[r][i]) {
-                            visited[r][i] = true;
-                            selected[r] = i;
-                            rotation(c+1, r+1, selected);
-                            visited[r][i] = false;
-                        }
-                    }
-                }
-                vCC[c] = false;
-            }
+        for (int i = 0; i < 4; i++) {
+            directions[r] = i;
+            rotate(directions, r+1);
         }
     }
 
-    static void calculation(int[] selected) {
+    // cctv 사각지대를 계산한다.
+    private static int calculate(int[] directions) {
 
-        //System.out.println("계산");
-        v = new boolean[n][m];
-        int count = 0;
-
-//        Queue<int[]> que = new LinkedList<>();
-//        for (int i = 0; i < cctv.size(); i++) {
-//            int[] l = new int[4];
-//            for (int j = 0; j < 3; j++) {
-//                l[j] = cctv.get(i)[j];
-//            }
-//            l[3] = selected[i];
-//            que.add(l);
-//        }
-
-//        while(!que.isEmpty()) {
-//            int[] cctv = que.poll();
-//            int cctvType = cctv[0];
-//            int y = cctv[1];
-//            int x = cctv[2];
-//            int s = cctv[3];
-//
-//
-//            if (cctvType == 1) {
-//                int ny = y + dy[s];
-//                int nx = x + dx[s];
-//            }
-//            else if (cctvType == 2) {
-//                for (int i = 0; i < 2; i++) {
-//                    int ny = y +
-//                }
-//                int
-//            }
-//
-//        }
-        for (int i = 0; i < cctv.size(); i++) {
-            int cctvType = cctv.get(i)[0];
-            int y = cctv.get(i)[1];
-            int x = cctv.get(i)[2];
-            int s = selected[i];
-
-            if (cctvType == 1) {
-                dfs1(y,x,s);
-            }
-            else if (cctvType == 2) { // 0, 1 -> 01 23
-                dfs1(y,x,s*2);
-                dfs1(y,x,s*2+1);
-            }
-            else if (cctvType == 3) {
-                dfs2(y,x,s%4);
-                dfs2(y,x,(s+1)%4);
-            }
-            else if (cctvType == 4) { // 0,1,2,3
-                dfs2(y,x,s);
-                dfs2(y,x,(s+1)%4);
-                dfs2(y,x,(s+2)%4);
-                //dfs2(y,x,(s+3)%4);
-            }
-            else if (cctvType == 5) {
-                dfs1(y,x,s);
-                dfs1(y,x,s+1);
-                dfs1(y,x,s+2);
-                dfs1(y,x,s+3);
+        // 원본 배열을 복사해서 사용한다.
+        int[][] cpMap = new int[n][m];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                cpMap[i][j] = map[i][j];
             }
         }
 
+        boolean[][] v = new boolean[n][m];
+        for (int i = 0; i < cnt; i++) {
+            see(cctvList.get(i), directions[i], cpMap, v);
+        }
+
+        // 사각지대의 개수를 구한다.
+        int count = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                if(!v[i][j] && arr[i][j] == 0) {
+                if (map[i][j] == 0 && !v[i][j]) {
                     count++;
                 }
             }
         }
 
-        min = Math.min(min, count);
-
+        return count;
     }
 
-    static void dfs1(int y, int x, int a) {
-        //System.out.println("dfs1 호출 " + y + " " + x);
-        //if (!visited)
-        v[y][x] = true;
-        int ny = y+dy[a];
-        int nx = x+dx[a];
+    private static void see(Cctv cctv, int dir, int[][] cpMap, boolean[][] v) {
 
-//        if (arr[y][x] == 0) {
-//            System.out.println("k");
-//        }
-
-        if (0 <= ny && ny < n && 0 <= nx && nx < m) {
-            //System.out.println("조건1");
-            // if ((!v[ny][nx] && arr[ny][nx] != 6) || (1 <= arr[ny][nx] && arr[ny][nx] < 6))
-            if (arr[ny][nx] != 6) {
-                //System.out.println("조건2");
-                dfs1(ny, nx, a);
-            }
+        if (cctv.type == 1) {
+            // dir 한 방향으로만 감시
+            dfs(cctv.x, cctv.y, dir, cpMap, v);
+        }
+        if (cctv.type == 2) {
+            // dir 방향, 반대 방향으로 감시
+            dfs(cctv.x, cctv.y, dir, cpMap, v);
+            dfs(cctv.x, cctv.y, (dir+2)%4, cpMap, v);
+        }
+        if (cctv.type == 3) {
+            // dir 방향, 90도 한칸 간 방향으로 감시
+            dfs(cctv.x, cctv.y, dir, cpMap, v);
+            dfs(cctv.x, cctv.y, (dir+1)%4, cpMap, v);
+        }
+        if (cctv.type == 4) {
+            // 세방향으로 감시
+            dfs(cctv.x, cctv.y, dir, cpMap, v);
+            dfs(cctv.x, cctv.y, (dir+1)%4, cpMap, v);
+            dfs(cctv.x, cctv.y, (dir+2)%4, cpMap, v);
+        }
+        if (cctv.type == 5) {
+            // 모든 방향으로 감시
+            dfs(cctv.x, cctv.y, dir, cpMap, v);
+            dfs(cctv.x, cctv.y, (dir+1)%4, cpMap, v);
+            dfs(cctv.x, cctv.y, (dir+2)%4, cpMap, v);
+            dfs(cctv.x, cctv.y, (dir+3)%4, cpMap, v);
         }
     }
 
-    static void dfs2(int y, int x, int a) {
-        v[y][x] = true;
-
-        for (int i = 0; i < 2; i++) {
-            int ny = y+dy2[a];
-            int nx = x+dx2[a];
-
-            if (0 <= ny && ny < n && 0 <= nx && nx < m) {
-                //System.out.println("조건1");
-                if (arr[ny][nx] != 6) {
-                    //System.out.println("조건2");
-                    dfs2(ny, nx, a);
-                }
-            }
+    private static void dfs(int x, int y, int dir, int[][] cpMap, boolean[][] v) {
+        // 배열 범위 벗어났다면 진행 x
+        if (x < 0 || x >= n || y < 0 || y >= m) {
+            return;
         }
-    }
+        // 벽을 만났다면 더 진행 x
+        if (cpMap[x][y] == 6) {
+            return;
+        }
 
+        if (cpMap[x][y] == 0) {
+            v[x][y] = true;
+        }
+
+        dfs(x+dx[dir], y+dy[dir], dir, cpMap, v);
+    }
 }
