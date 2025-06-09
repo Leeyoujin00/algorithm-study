@@ -23,7 +23,7 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine());
         for (int i = 0; i < M; i++) {
             int n = Integer.parseInt(st.nextToken());
-            q.add(n);
+            q.offer(n);
             visit[n] = 0;
         }
 
@@ -44,7 +44,7 @@ public class Main {
                 int next = now ^ (1 << i);
                 if (N < next || visit[next] != -1) continue;
                 visit[next] = visit[now] + 1;
-                q.add(next);
+                q.offer(next);
                 ans = Math.max(ans, visit[next]);
             }
         }
