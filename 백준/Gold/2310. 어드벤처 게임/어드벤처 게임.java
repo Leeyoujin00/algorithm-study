@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 public class Main {
     static int n;
@@ -47,8 +49,8 @@ public class Main {
                 rooms[i] = room;
             }
 
-            //dfs(rooms[1], 0);
-            boolean flag = bfs();
+            dfs(rooms[1], 0);
+            boolean flag = visited[n];
 
             if (flag) {
                 sb.append("Yes" + "\n");
@@ -61,47 +63,30 @@ public class Main {
         System.out.print(sb);
     }
 
-    static class Node {
-        int roomNum;
-        int money;
-        public Node (int roomNum, int money) {
-            this.roomNum = roomNum;
-            this.money = money;
-        }
-    }
-    // bfs 알고리즘 활용
-    private static boolean bfs() {
+    private static void dfs(Room curRoom, int money) {
 
-        int[] moneyCk = new int[n+1]; // 각 방에 도달했을 때의 최대 소지금
-        Arrays.fill(moneyCk, -1);
-        Queue<Node> que = new LinkedList<>();
-        que.offer(new Node(1,0));
-        moneyCk[1] = 0;
+        int roomNum = curRoom.num, cost = curRoom.cost;
+        char roomType = curRoom.type;
 
-        while (!que.isEmpty()) {
-            Node cur = que.poll();
-            int roomNum = cur.roomNum, money = cur.money;
+        if (visited[roomNum]) return;
 
-            if (roomNum == n) return true;
-
-            for (int nextRoom : rooms[roomNum].connectedRooms) {
-                int nextMoney = money;
-                if (rooms[nextRoom].type == 'L') {
-                    if (nextMoney < rooms[nextRoom].cost) {
-                        nextMoney = rooms[nextRoom].cost;
-                    }
-                }
-                else if (rooms[nextRoom].type == 'T') {
-                    nextMoney -= rooms[nextRoom].cost;
-                }
-
-                if (nextMoney < 0 || moneyCk[nextRoom] >= nextMoney) continue;
-                que.offer(new Node(nextRoom, nextMoney));
-                moneyCk[nextRoom] = nextMoney;
+        if (roomType == 'L') {
+            if (money < cost) {
+                money = cost;
             }
         }
+        else if (roomType == 'T') {
+            if (money < cost) { // 통행료 지불할 수 없으므로 방문 불가
+                return;
+            }
+            else {
+                money -= cost;
+            }
+        }
+        visited[roomNum] = true;
+        for (int nextRoom : curRoom.connectedRooms) {
+            dfs(rooms[nextRoom], money);
+        }
 
-        return false;
     }
-    
 }
