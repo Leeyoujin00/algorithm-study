@@ -1,61 +1,71 @@
-import java.io.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class Main {
 
-    public static List<int[]> arr;
-    public static List<Integer> distinctArr;
-    public static int N;
+    static int n;
+    static int[] list;
+    static boolean[] visited;
+    static PriorityQueue<Integer> pq = new PriorityQueue<>();
+    static List<Integer> result = new ArrayList<>();
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        n = Integer.parseInt(br.readLine());
+        list = new int[n+1];
 
-        String read = br.readLine();
-        N = Integer.parseInt(read);
-
-        arr = new ArrayList<>();
-        //arrCopy = new ArrayList<>();
-        distinctArr = new ArrayList<>();
-        for (int i = 0; i < N; i++) {
-            String readLine = br.readLine();
-            arr.add(new int[] {i+1, Integer.parseInt(readLine)});
-            distinctArr.add(Integer.parseInt(readLine));
+        for (int i = 1; i <= n; i++) {
+            list[i] = Integer.parseInt(br.readLine());
         }
 
-        distinctArr = distinctArr.stream().distinct().collect(Collectors.toList());
-
-       // 첫째 줄 정수가 둘째 줄의 정수에 없는 값이라면 해당 레코드는 삭제
-
-        int delNum = 1;
-        while (delNum != 0) {
-            delNum = 0;
-            for (int i = 0; i < arr.size(); i++) {
-                if (!distinctArr.contains(arr.get(i)[0])) {
-                    //System.out.println("삭제된 원소: " + arr.get(i)[1]);
-                    arr.remove(i);
-                    delNum += 1;
+        visited = new boolean[n+1];
+        for (int i = 1; i <= n; i++) {
+            if (!visited[i]) {
+                pq.clear();
+                // 사이클 생성되지 않는 경로임
+                if (!dfs(i,i)) {
+                    // 방문한 노드들 모두 방문 X 샹태로 복구
+                    while(!pq.isEmpty()) {
+                        visited[pq.poll()] = false;
+                    }
+                }
+                else { // 결과에 저장
+                    while(!pq.isEmpty()) {
+                        result.add(pq.poll());
+                    }
                 }
             }
-            distinctArr = new ArrayList<>();
-            for (int i = 0; i < arr.size(); i++) {
-                distinctArr.add(arr.get(i)[1]);
-            }
         }
 
-        distinctArr = distinctArr.stream().distinct().collect(Collectors.toList());
-        Collections.sort(distinctArr);
-
-        System.out.println(distinctArr.size());
-        for (Integer i: distinctArr) {
-            bw.write(Integer.toString(i)+"\n");
+        Collections.sort(result);
+        StringBuilder sb = new StringBuilder(result.size() + "\n");
+        for (int r : result) {
+            sb.append(r + "\n");
         }
 
-        bw.flush();
-        br.close();
-        bw.close();
+        System.out.print(sb);
     }
 
+    private static boolean dfs(int curIdx, int startIdx) {
 
+        visited[curIdx] = true;
+        pq.offer(curIdx);
+        
+        int nextIdx = list[curIdx];
+        if (nextIdx == startIdx) { // 사이클 생성됐다면, true 반환
+            return true;
+        }
+        // 만약 방문한 적 없는 노드라면, 탐색 진행
+        if (!visited[nextIdx]) {
+            return dfs(nextIdx, startIdx);
+        }
+
+        return false; // 사이클 생성 안되고, 방문한 적 있는 노드라면 탐색 진행 X
+    }
 }
