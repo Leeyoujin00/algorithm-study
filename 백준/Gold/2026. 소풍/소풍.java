@@ -1,93 +1,85 @@
-import java.util.*;
-import java.io.*;
- 
-class Main {
-    static int stoi(String s) { return Integer.parseInt(s);}
- 
-    static int[][] arr;
-    static boolean[] visited;
-    static int k;
-    static int n;
-    static int f;
-    static boolean done = false;
-    static StringBuilder sb;
- 
-    public static void main(String[] args) throws Exception {
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class Main {
+    static int n,k,f;
+    static boolean[] selected;
+    static boolean[][] isFriend; // 친구관계 인접행렬
+    static int[] friendCnt;
+    static boolean isDone = false;
+
+    public static void main(String[] args) throws IOException {
+
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
- 
-        st = new StringTokenizer(br.readLine());
-        k = stoi(st.nextToken());
-        n = stoi(st.nextToken());
-        f = stoi(st.nextToken());
-        arr = new int[n+1][n+1];
-        visited = new boolean[n+1];
-        sb = new StringBuilder();
-        int[] indegree = new int[n+1];
- 
-        // 인접행렬 형성
-        for(int i=0; i<f; i++) {
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        k = Integer.parseInt(st.nextToken());
+        n = Integer.parseInt(st.nextToken());
+        f = Integer.parseInt(st.nextToken());
+
+        isFriend = new boolean[n+1][n+1];
+        friendCnt = new int[n+1];
+        for (int i = 0; i < f; i++) {
             st = new StringTokenizer(br.readLine());
-            int v1 = stoi(st.nextToken());
-            int v2 = stoi(st.nextToken());
- 
-            arr[v1][v2] = arr[v2][v1] = 1;
-            indegree[v1]++;
-            indegree[v2]++;
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            isFriend[a][b] = true;
+            isFriend[b][a] = true;
+
+            friendCnt[a]++;
+            friendCnt[b]++;
         }
- 
-        // 백트래킹으로 확인
-        for(int i=1; i<=n; i++) {
-            // 본인 포함 k명이 되지 않으면 애초에 볼 필요가 없음
-            if(indegree[i] < k-1) continue;
-            if(done) break;
- 
-            visited[i] = true;
+
+        selected = new boolean[n+1];
+        for (int i = 1; i <= n; i++) {
+            // 친구가 k-1명 미만인 사람은 검증할 필요 없음
+            if (friendCnt[i] < k-1) continue;
+            selected[i] = true;
             dfs(i, 1);
-            visited[i] = false;
+            selected[i] = false;
         }
- 
-        // 아무도 소풍에 가지 못할 경우 -1
-        if(!done)
-            System.out.println(-1);
-        else
-            System.out.println(sb);
+
+        if (!isDone) System.out.print(-1);
+
     }
- 
- 
-    static void dfs(int now, int depth) {
-        if(done) return;
- 
-        if(depth == k) {
+
+    // dfs 의 cur 노드는 항상 선택된 노드여야 한다.
+    public static void dfs(int cur, int depth) {
+
+        if (isDone) return;
+
+        if (depth == k) {
+            isDone = true;
+            // 출력
             print();
-            done = true;
             return;
         }
- 
-        for(int i=now+1; i<=n; i++) {
-            if(arr[now][i] == 1 && isFriend(i)) {
-                visited[i] = true;
-                dfs(i, depth + 1);
-                visited[i] = false;
+
+        // cur의 친구중, selected 멤버들과도 모두 친구인 경우, selected에 포함
+        for (int i = 1; i <= n; i++) {
+            if (isFriend[cur][i]) { // cur의 친구임
+                if (check(i)) { // selected로 선택 가능
+                    selected[i] = true;
+                    dfs(i, depth+1);
+                    selected[i] = false;
+                }
             }
         }
     }
- 
-    // 지금까지 방문했던 노드와 현재 target 노드가 서로 친구인지 확인
-    // DFS가 방문하는 점들은 항상 모두 친구임을 보장
-    static boolean isFriend(int target) {
-        for(int i=1; i<=n; i++) {
-            if(visited[i] && arr[target][i] != 1) 
-                return false;
+
+    // selected 멤버들과 모두 친구인지 확인
+    private static boolean check(int target) {
+        for (int i = 1; i <= n; i++) {
+            if (selected[i] && !isFriend[i][target]) return false;
         }
         return true;
     }
- 
-    // 답 출력
-    static void print() {
-        for(int i=1; i<=n; i++) {
-            if(visited[i])
-                sb.append(i + "\n");
+
+    public static void print() {
+        for (int i = 1; i <= n; i++) {
+            if (selected[i]) System.out.println(i);
         }
     }
 }
