@@ -1,8 +1,7 @@
-select id, email, first_name, last_name
-from developers
-where skill_code & (select code 
-                   from skillcodes where name = 'Python') != 0 
-                   or
-      skill_code & (select code 
-                   from skillcodes where name = 'C#') <> 0
-order by id asc;
+#DEVELOPES테이블에서 파이썬이나 C스킬을 가진 갭라자의 정보를 조회
+SELECT ID, EMAIL, FIRST_NAME, LAST_NAME
+FROM DEVELOPERS
+WHERE SKILL_CODE & (SELECT CODE FROM SKILLCODES WHERE NAME = 'C#') != 0
+OR
+SKILL_CODE & (SELECT CODE FROM SKILLCODES WHERE NAME = 'Python') != 0
+ORDER BY ID;
