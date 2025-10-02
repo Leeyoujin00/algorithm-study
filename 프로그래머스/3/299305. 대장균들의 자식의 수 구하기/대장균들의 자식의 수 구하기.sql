@@ -1,6 +1,9 @@
-select id ,if(ci.cc is null, 0, ci.cc) as CHILD_COUNT
-from ecoli_data e
-left join (select parent_id, count(*) as cc
-from ecoli_data
-group by parent_id) ci on e.id = ci.parent_id
-order by id;
+#부모, 자식수
+SELECT E.ID, IFNULL(CHILD_COUNT, 0) AS CHILD_COUNT
+FROM ECOLI_DATA AS E
+LEFT JOIN (
+    SELECT PARENT_ID, COUNT(*) AS CHILD_COUNT
+    FROM ECOLI_DATA AS E
+    GROUP BY PARENT_ID
+) P ON E.ID = P.PARENT_ID
+ORDER BY E.ID ASC;
