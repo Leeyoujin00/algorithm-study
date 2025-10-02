@@ -1,28 +1,15 @@
--- 코드를 작성해주세요
-# select id, 
-#     case 
-#     when percent_rank() over(order by size_of_colony desc) * 100 <= 25
-#     then 'CRITICAL'
-#     when percent_rank() over(order by size_of_colony desc) * 100 <= 50
-#     then 'HIGH'
-#     when percent_rank() over(order by size_of_colony desc) * 100 <= 75
-#     then 'MEDIUM'
-#     else 'LOW'
-#     end
-#     as COLONY_NAME
-# from ecoli_data
-# order by id;
+# 대장균 크기의 퍼센트 랭크 테이블
+WITH COLONY_RANKING AS (
+    SELECT ID, PERCENT_RANK() OVER(ORDER BY SIZE_OF_COLONY DESC) AS SIZE_RANK
+    FROM ECOLI_DATA
+)
 
 SELECT ID,
-    CASE 
-    WHEN PERCENT_RANK() OVER(ORDER BY SIZE_OF_COLONY DESC) *100 <= 25
-    THEN 'CRITICAL'
-    WHEN PERCENT_RANK() OVER(ORDER BY SIZE_OF_COLONY DESC)
-    * 100 <= 50
-    THEN 'HIGH'
-    WHEN PERCENT_RANK() OVER(ORDER BY SIZE_OF_COLONY DESC) * 100 <= 75
-    THEN 'MEDIUM'
-    ELSE 'LOW'
-    END AS COLONY_NAME
-FROM ECOLI_DATA
+CASE
+WHEN SIZE_RANK * 100 <= 25 THEN 'CRITICAL'
+WHEN SIZE_RANK * 100 <= 50 THEN 'HIGH'
+WHEN SIZE_RANK * 100 <= 75 THEN 'MEDIUM'
+ELSE 'LOW'
+END COLONY_NAME
+FROM COLONY_RANKING
 ORDER BY ID;
