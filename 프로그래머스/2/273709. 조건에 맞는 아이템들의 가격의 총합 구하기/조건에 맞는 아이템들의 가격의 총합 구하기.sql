@@ -1,4 +1,4 @@
-Select sum(price) as TOTAL_PRICE
-From item_info
-Group by rarity
-Having rarity= 'legend'
+SELECT SUM(PRICE) AS TOTAL_PRICE
+FROM ITEM_INFO
+GROUP BY RARITY
+HAVING RARITY = 'LEGEND';
