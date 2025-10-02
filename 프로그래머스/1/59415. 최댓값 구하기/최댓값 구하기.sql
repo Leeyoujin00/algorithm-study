@@ -1,2 +1,2 @@
-select max(datetime)
-from animal_ins;
+SELECT MAX(DATETIME) AS TIME
+FROM ANIMAL_INS;
