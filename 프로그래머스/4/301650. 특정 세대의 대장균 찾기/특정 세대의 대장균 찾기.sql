@@ -1,11 +1,14 @@
-with recursive generations as (
-    select id, parent_id, 1 as gen
-    from ecoli_data
-    where parent_id is null
-    union all
-    select e.id, e.parent_id, g.gen+1
-    from ecoli_data e
-    join generations g on e.parent_id = g.id
+# 3세대의 대장균의 id를 출력, 
+WITH RECURSIVE GENERATIONS AS (
+    SELECT ID, PARENT_ID, 1 AS GENERATION
+    FROM ECOLI_DATA
+    WHERE PARENT_ID IS NULL
+    UNION ALL
+    SELECT E.ID, E.PARENT_ID, G.GENERATION+1 AS GENERATION
+    FROM ECOLI_DATA E
+    JOIN GENERATIONS G ON E.PARENT_ID = G.ID
 )
 
-select id from generations where gen = 3 order by id;
+SELECT ID
+FROM GENERATIONS
+WHERE GENERATION = 3;
