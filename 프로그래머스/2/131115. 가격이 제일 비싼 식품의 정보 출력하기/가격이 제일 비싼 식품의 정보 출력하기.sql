@@ -1,4 +1,6 @@
-select * 
-from food_product
-where price = (Select max(price)
-From food_product);
+# 가격이 제일 비싼 식품의 정보 조회
+
+SELECT *
+FROM FOOD_PRODUCT
+WHERE PRICE = (
+    SELECT MAX(PRICE) FROM FOOD_PRODUCT);
