@@ -1,5 +1,6 @@
-select ii.ingredient_type as INGREDIENT_TYPE, sum(fh.total_order) as TOTAL_ORDER
-from first_half fh
-join icecream_info ii on fh.flavor = ii.flavor
-group by ii.ingredient_type
-order by sum(fh.total_order);
+-- 상반기 동안 각 아이스크림 성분 타입과, 성분타입별 아이스크림 총주문량
+SELECT INGREDIENT_TYPE, SUM(TOTAL_ORDER) TOTAL_ORDER
+FROM ICECREAM_INFO I
+JOIN FIRST_HALF F ON I.FLAVOR = F.FLAVOR
+GROUP BY I.INGREDIENT_TYPE
+ORDER BY 2;
