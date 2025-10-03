@@ -1,14 +1,10 @@
--- 코드를 입력하세요
-select R.FOOD_TYPE, R.REST_ID, R.REST_NAME, R.FAVORITES
-from rest_info r
-join (
-    select food_type, max(favorites) AS MAX_FAVORITES
-    from rest_info
-    group by food_type
-) f on r.food_type = f.food_type and r.favorites = F.MAX_FAVORITES
-order by r.food_type DESC;
+-- 음식종류별로 즐겨찾기수가 가장 많은 식당의 정보 조회
 
-
-# select *
-# from rest_info
-# group by food_type;
+SELECT FOOD_TYPE, REST_ID, REST_NAME, FAVORITES
+FROM REST_INFO
+WHERE (FOOD_TYPE, FAVORITES) IN (
+    SELECT FOOD_TYPE, MAX(FAVORITES)
+    FROM REST_INFO
+    GROUP BY FOOD_TYPE -- 음식종류별 MAX 즐겨찾기 수
+)
+ORDER BY 1 DESC;
