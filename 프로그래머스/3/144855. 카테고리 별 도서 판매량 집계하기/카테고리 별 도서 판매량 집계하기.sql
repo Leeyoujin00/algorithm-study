@@ -1,7 +1,7 @@
--- 코드를 입력하세요
-SELECT b.category as CATEGORY, sum(bs.sales) as TOTAL_SALES
-from book b
-join book_sales bs on b.book_id = bs.book_id
-where date_format(bs.sales_date, '%Y-%m') = '2022-01'
-group by b.category
-order by category;
+-- 2022년 1월 카테고리 별 도서판매량 합산, 카테고리, 총판매량 리스트를 출력
+SELECT CATEGORY, SUM(BS.SALES) TOTAL_SALES
+FROM BOOK B
+JOIN BOOK_SALES BS ON B.BOOK_ID = BS.BOOK_ID
+WHERE DATE_FORMAT(BS.SALES_DATE, '%Y-%m') = '2022-01'
+GROUP BY CATEGORY
+ORDER BY 1;
