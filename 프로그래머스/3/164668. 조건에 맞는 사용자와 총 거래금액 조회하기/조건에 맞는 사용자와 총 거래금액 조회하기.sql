@@ -1,10 +1,8 @@
-select u.user_id as USER_ID, u.nickname as NICKNAME, sum(b.price) as TOTAL_SALES
-from used_goods_board b
-join used_goods_user u on b.writer_id = u.user_id
-where b.status = 'DONE'
-group by b.writer_id
-having sum(b.price) >= 700000
-order by sum(b.price)
-
-
-
+-- 완료된 중고거래의 총금액이 70만원 이상인 사람의 정보 조회
+SELECT USER_ID, NICKNAME, SUM(B.PRICE) TOTAL_SALES
+FROM USED_GOODS_USER U
+JOIN USED_GOODS_BOARD B ON U.USER_ID = B.WRITER_ID
+WHERE B.STATUS = 'DONE'
+GROUP BY U.USER_ID
+HAVING SUM(B.PRICE) >= 700000
+ORDER BY 3;
