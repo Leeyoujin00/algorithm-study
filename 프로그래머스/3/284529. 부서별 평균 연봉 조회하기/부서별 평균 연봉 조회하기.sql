@@ -1,6 +1,12 @@
 -- 코드를 작성해주세요
-SELECT e.DEPT_ID, d.DEPT_NAME_EN, round(avg(sal), 0) as AVG_SAL
-from hr_department d
-join hr_employees e on d.dept_id = e.dept_id
-group by e.dept_id
-order by avg(sal) desc
+# 부서별 부서ID, 부서명, 평균 연봉 조회
+WITH CTE AS (
+    SELECT DEPT_ID, ROUND(AVG(SAL)) AVG_SAL
+    FROM HR_EMPLOYEES
+    GROUP BY DEPT_ID
+)
+
+SELECT D.DEPT_ID, DEPT_NAME_EN, AVG_SAL
+FROM HR_DEPARTMENT D
+JOIN CTE C ON D.DEPT_ID = C.DEPT_ID
+ORDER BY 3 DESC;
