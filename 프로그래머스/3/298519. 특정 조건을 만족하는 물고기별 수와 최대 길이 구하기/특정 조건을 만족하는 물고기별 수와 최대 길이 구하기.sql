@@ -1,18 +1,12 @@
--- 코드를 작성해주세요
-with lens as (
-    select fish_type, 
-    case when length <= 10 or length is null then 10 
-    else length end as length 
-    from fish_info
-),
-avg_len as (
-    select fish_type, avg(l.length) as avg_length
-    from lens l
-    group by fish_type
-)
-select count(*) as FISH_COUNT, max(length) as MAX_LENGTH, f.fish_type as FISH_TYPE
-from fish_info f
-join avg_len al on f.fish_type = al.fish_type
-where al.avg_length >= 33
-group by f.fish_type
-order by f.fish_type
+-- 평균 길이가 33 이상인 물고기들을 종류별로 분류하여 잡은 수, 최대 길이, 종류 출력
+
+WITH FI AS (
+    SELECT FISH_TYPE, IFNULL(LENGTH, 10) LENGTH
+    FROM FISH_INFO
+) -- 길이 보정
+
+SELECT COUNT(*) FISH_COUNT, MAX(LENGTH) MAX_LENGTH, FISH_TYPE
+FROM FI
+GROUP BY FISH_TYPE
+HAVING AVG(LENGTH) >= 33
+ORDER BY FISH_TYPE;
