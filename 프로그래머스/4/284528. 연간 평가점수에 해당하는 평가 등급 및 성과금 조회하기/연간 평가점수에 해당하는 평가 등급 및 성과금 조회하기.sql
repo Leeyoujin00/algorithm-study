@@ -1,0 +1,24 @@
+# 사원별 성과금 정보 조회
+# 평가 점수별 등급에 따른 성과금 정
+WITH CTE AS (
+    SELECT EMP_NO, SUM(SCORE)/2 SCORE
+    FROM HR_GRADE
+    GROUP BY EMP_NO
+) -- 사원별 성과금 정보
+
+SELECT E.EMP_NO, EMP_NAME, 
+    CASE
+    WHEN SCORE >= 96 THEN 'S'
+    WHEN SCORE >= 90 THEN 'A'
+    WHEN SCORE >= 80 THEN 'B'
+    ELSE 'C'
+    END GRADE,
+    CASE
+    WHEN SCORE >= 96 THEN SAL * 0.2
+    WHEN SCORE >= 90 THEN SAL * 0.15
+    WHEN SCORE >= 80 THEN SAL * 0.1
+    ELSE 0
+    END BONUS
+FROM HR_EMPLOYEES E
+JOIN CTE C ON E.EMP_NO = C.EMP_NO
+ORDER BY 1;
