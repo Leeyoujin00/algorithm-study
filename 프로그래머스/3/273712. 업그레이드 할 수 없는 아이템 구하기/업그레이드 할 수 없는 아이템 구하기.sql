@@ -1,0 +1,8 @@
+-- 더이상 업그레이드 할 수 없는 아이템 정보 출력
+-- 자식이 없는 아이템 = 업그레이드 더 이상 못하는 아이템
+
+SELECT II.ITEM_ID, II.ITEM_NAME, II.RARITY
+FROM ITEM_INFO II
+LEFT JOIN ITEM_TREE IT ON II.ITEM_ID = IT.PARENT_ITEM_ID
+WHERE IT.ITEM_ID IS NULL
+ORDER BY 1 DESC;
