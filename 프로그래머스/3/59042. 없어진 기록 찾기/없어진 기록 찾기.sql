@@ -1,5 +1,6 @@
 -- 코드를 입력하세요
-select ao.animal_id as ANIMAL_ID, ao.name AS NAME
-from animal_outs ao
-where ao.animal_id not in (select ai.animal_id from animal_ins ai)
-order by ao.animal_id;
+SELECT O.ANIMAL_ID, O.NAME
+FROM ANIMAL_OUTS O
+LEFT JOIN ANIMAL_INS I ON O.ANIMAL_ID = I.ANIMAL_ID
+WHERE I.ANIMAL_ID IS NULL
+ORDER BY O.ANIMAL_ID;
