@@ -1,0 +1,7 @@
+-- 중고거래 게시물에 대한 첨부파일 경로를 조회하는 SQL 작성
+-- 첨부파일 경로 
+SELECT CONCAT('/home/grep/src/', F.BOARD_ID,'/', F.FILE_ID, FILE_NAME, FILE_EXT) FILE_PATH
+FROM used_goods_board b
+join USED_GOODS_FILE F ON B.BOARD_ID = F.BOARD_ID
+WHERE B.VIEWS = (SELECT MAX(VIEWS) FROM USED_GOODS_BOARD)
+ORDER BY F.FILE_ID DESC;
