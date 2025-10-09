@@ -4,71 +4,105 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int[][] result;
-    static int[] s = {0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4};
-    static int[] v = {1, 2, 3, 4, 5, 2, 3, 4, 5, 3, 4, 5, 4, 5, 5};
-    static boolean flag;
+
+    static int[][] scores;
+    static int[][] match; // 각 경기를 진행하는 두 팀 번호
+    static int GAME_COUNT = 0;// 총 경기 횟수
+    static int TEAM_NUM = 6;
+    static boolean isPossible = false;
 
     public static void main(String[] args) throws IOException {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        result = new int[6][3];
+        // 총 경기 수를 계산한다.
+        for (int i = TEAM_NUM-1; i >= 1; i--) {
+            GAME_COUNT += i;
+        }
 
-        for (int tc = 0; tc < 4; tc++) {
+        int tc = 4;
+        // 각 경기 진행하는 두 팀 번호 세팅
+        match = new int[GAME_COUNT][2];
+        int idx = 0;
+        for (int i = 0; i < TEAM_NUM - 1; i++) {
+            for (int j = i+1; j < TEAM_NUM; j++) {
+                match[idx][0] = i;
+                match[idx][1] = j;
+                idx++;
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        while (tc-- > 0) {
+            // 각 경기 결과 저장
+            scores = new int[TEAM_NUM][3];
+
             st = new StringTokenizer(br.readLine());
-            int cnt = 0;
-            for (int i = 0; i < 6; i++) {
+            
+            int sum = 0;
+            for (int i = 0; i < TEAM_NUM; i++) {
                 for (int j = 0; j < 3; j++) {
-                    result[i][j] = Integer.parseInt(st.nextToken());
-                    cnt += result[i][j];
+                    scores[i][j] = Integer.parseInt(st.nextToken());
+                    sum += scores[i][j];
                 }
             }
-            if (cnt != 30) {
-                System.out.println(0);
+
+            // 주어진 점수가 가능한 매치 결과인지 확인
+            if (sum != 30) {
+                sb.append(0 + " ");
                 continue;
             }
-            flag = false;
-            backtracking(0, 0, 0);
-            int answer = 0;
-            if (flag) answer = 1;
 
-            System.out.println(answer);
+            isPossible = false; // 초기화
+            backtracking(0);
+
+            if (isPossible) sb.append(1 + " ");
+            else sb.append(0 + " ");
         }
+
+        System.out.print(sb);
     }
 
-    static void backtracking(int n, int sIdx, int vIdx) {
+    private static void backtracking(int match_num) {
 
-        // 경기가 15번 진행되었다면 종료
-        if (n == 15) {
-            flag = true;
+        if (isPossible) {
             return;
         }
 
-        //s국이 승리
-        if (result[s[sIdx]][0] > 0 && result[v[vIdx]][2] > 0) {
-            result[s[sIdx]][0]--;
-            result[v[vIdx]][2]--;
-            backtracking(n + 1, sIdx + 1, vIdx + 1);
-            result[s[sIdx]][0]++;
-            result[v[vIdx]][2]++;
+        if (match_num == GAME_COUNT) {
+            isPossible = true;
+            return;
         }
-        //무승부
-        if (result[s[sIdx]][1] > 0 && result[v[vIdx]][1] > 0) {
-            result[s[sIdx]][1]--;
-            result[v[vIdx]][1]--;
-            backtracking(n + 1, sIdx + 1, vIdx + 1);
-            result[s[sIdx]][1]++;
-            result[v[vIdx]][1]++;
+
+        int t = match[match_num][0];
+        int s = match[match_num][1];
+
+        // 내가 승, 상대가 패
+        if (scores[t][0] > 0 && scores[s][2] > 0) {
+            scores[t][0]--;
+            scores[s][2]--;
+            backtracking(match_num+1);
+            scores[t][0]++;
+            scores[s][2]++;
         }
-        //s국이 패
-        if (result[s[sIdx]][2] > 0 && result[v[vIdx]][0] > 0) {
-            result[s[sIdx]][2]--;
-            result[v[vIdx]][0]--;
-            backtracking(n + 1, sIdx + 1, vIdx + 1);
-            result[s[sIdx]][2]++;
-            result[v[vIdx]][0]++;
+
+        // 무승부
+        if (scores[t][1] > 0 && scores[s][1] > 0) {
+            scores[t][1]--;
+            scores[s][1]--;
+            backtracking(match_num+1);
+            scores[t][1]++;
+            scores[s][1]++;
+        }
+
+        // 내가 패, 상대가 승
+        if (scores[t][2] > 0 && scores[s][0] > 0) {
+            scores[t][2]--;
+            scores[s][0]--;
+            backtracking(match_num+1);
+            scores[t][2]++;
+            scores[s][0]++;
         }
 
     }
