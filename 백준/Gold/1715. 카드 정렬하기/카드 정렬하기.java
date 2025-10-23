@@ -1,38 +1,42 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.PriorityQueue;
+import java.util.StringTokenizer;
 
 public class Main {
     static int n;
-    static int[] card;
 
     public static void main(String[] args) throws IOException {
+
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
         n = Integer.parseInt(br.readLine());
-        card = new int[n];
 
-        // 작은 값부터 우선순위 가지는 우선순위 큐
-        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        // 가장 작은 것 두개 먼저 합침
+        PriorityQueue<Long> pq = new PriorityQueue<>();
         for (int i = 0; i < n; i++) {
-            int c = Integer.parseInt(br.readLine());
-            pq.offer(c);
+            pq.offer(Long.parseLong(br.readLine()));
         }
 
-        int cnt = 0;
+        if (n == 1) {
+            System.out.println(0);
+            System.exit(0);
+        }
+
+        Long n1, n2;
+        Long sum = 0L;
         while(!pq.isEmpty()) {
-            // 현재 가장 작은 두 카드를 선택
-            int c1 = pq.poll();
-            if (pq.isEmpty()) {
+            n1 = pq.poll();
+            if (!pq.isEmpty()) {
+                n2 = pq.poll();
+                pq.offer(n1+n2);
+                sum += n1+n2;
+            } else {
                 break;
             }
-            int c2 = pq.poll();
-            pq.offer(c1 + c2);
-            cnt += c1+c2;
         }
 
-        System.out.print(cnt);
+        System.out.println(sum);
+
     }
 }
