@@ -5,42 +5,36 @@ import java.util.StringTokenizer;
 
 public class Main {
     static int n;
-    static int[][] arr;
-    static int[] dp;
+    static int[] t, p;
 
     public static void main(String[] args) throws IOException {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-
         n = Integer.parseInt(br.readLine());
-        arr = new int[n + 2][2];
 
-        arr[0][0] = 1;
-        arr[0][1] = 0;
+        t = new int[n+2];
+        p = new int[n+2];
+        StringTokenizer st;
         for (int i = 1; i <= n; i++) {
             st = new StringTokenizer(br.readLine());
-            int t = Integer.parseInt(st.nextToken());
-            int p = Integer.parseInt(st.nextToken());
-
-            arr[i][0] = t;
-            arr[i][1] = p;
+            t[i] = Integer.parseInt(st.nextToken());
+            p[i] = Integer.parseInt(st.nextToken());
         }
 
-        dp = new int[n+2];
+        // dp[i] = i일에 얻을 수 있는 최대 금액
+        int[] dp = new int[n+2];
+        int max = -1;
+        for (int i = 1; i < n+2; i++) {
+            if (max < dp[i]) {
+                max = dp[i];
+            }
 
-        int max = 0;
-        for (int i = 1; i <= n+1; i++) {
-            int next = i + arr[i][0];
-            int cost = arr[i][1];
-            max = Math.max(max, dp[i]);
-
-            if (next <= n+1) {
-                dp[next] = Math.max(dp[next], max + cost);
+            int nxt = i + t[i];
+            if (nxt < n+2) {
+                dp[nxt] = Math.max(dp[nxt], p[i] + max);
             }
         }
 
-       
         System.out.print(dp[n+1]);
 
     }
