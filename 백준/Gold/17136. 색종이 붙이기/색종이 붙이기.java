@@ -4,10 +4,10 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int n = 10;
     static int[][] map;
-    static int[] papers = {0,5,5,5,5,5}; // 남은 색종이 개수 저장
-    static int ans = Integer.MAX_VALUE;
+    static int n = 10;
+    static int min = Integer.MAX_VALUE;
+    static int[] paper = {5,5,5,5,5};
 
     public static void main(String[] args) throws IOException {
 
@@ -15,6 +15,7 @@ public class Main {
         StringTokenizer st;
 
         map = new int[n][n];
+
         for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < n; j++) {
@@ -22,64 +23,65 @@ public class Main {
             }
         }
 
-        dfs(0,0,0);
-        if (ans == Integer.MAX_VALUE) System.out.print(-1);
-        else System.out.print(ans);
+        sol(0,0,0);
+
+        if (min == Integer.MAX_VALUE) System.out.print(-1);
+        else System.out.print(min);
     }
 
-    // DFS + 백트래킹 활용
-    public static void dfs(int x, int y, int cnt) {
-        // 끝까지 도달했다면, ans 갱신
-        if (x > 9) {
-            //System.out.println(cnt);
-            ans = Math.min(ans, cnt);
+    private static void sol(int x, int y, int cnt) {
+
+        if (y == n) {
+            sol(x+1, 0, cnt);
+            return;
+        }
+        if (x == n) {
+            min = Math.min(min, cnt);
             return;
         }
 
-        // y축 끝이라면, 다음 칸으로 이동
-        if (y >= 10) {
-            dfs(x+1, 0, cnt);
+        if (map[x][y] == 0) {
+            sol(x, y+1, cnt);
             return;
         }
 
-        if (map[x][y] == 1) { // 색종이 붙일 수 있는 칸이라면
-            // 크기 큰 종이부터 색종이를 붙임
-            for (int i = 5; i >= 1; i--) {
-                if (papers[i] > 0 && canAttach(x,y,i)) {
-                    // 색종이를 붙임
-                    papers[i]--;
-                    attach(x,y,i,0);
-                    dfs(x, y+1, cnt+1);
-                    // 색종이를 뗌
-                    papers[i]++;
-                    attach(x,y,i,1);
-                }
-            }
-        } else {
-            dfs(x, y+1, cnt); // 다음칸 탐색
-        }
-    }
-
-    // 색종이 붙이는 함수
-    public static void attach(int x, int y, int size, int state) {
-
-        for (int i = x; i < x+size; i++) {
-            for (int j = y; j < y+size; j++) {
-                map[i][j] = state;
+        for (int i = 5; i >= 1; i--) {
+            if (paper[i-1] > 0 && check(x,y,i)) {
+                paste(x, y, i);
+                paper[i-1]--;
+                sol(x, y+1, cnt+1);
+                unpaste(x, y, i);
+                paper[i-1]++;
             }
         }
     }
 
-    // 색종이 붙일 수 있는지 확인
-    public static boolean canAttach(int x, int y, int size) {
+    private static boolean check(int x, int y, int size) {
 
-        for (int i = x; i < x+size; i++) {
-            for (int j = y; j < y+size; j++) {
-                if (i < 0 || i >= n || j < 0 || j >= n) return false;
-                if (map[i][j] != 1) return false;
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (x+i < 0 || x+i >= n || y+j < 0 || y+j >= n) return false;
+                if (map[x+i][y+j] == 0) return false;
             }
         }
-
         return true;
+    }
+
+    private static void paste(int x, int y, int size) {
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                map[x+i][y+j] = 0;
+            }
+        }
+    }
+
+    private static void unpaste(int x, int y, int size) {
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                map[x+i][y+j] = 1;
+            }
+        }
     }
 }
