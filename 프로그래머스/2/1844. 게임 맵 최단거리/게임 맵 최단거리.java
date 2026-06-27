@@ -1,46 +1,56 @@
 import java.util.LinkedList;
 import java.util.Queue;
 
-class Solution {
-    static int n;
-    static int m;
-    static int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-    
+public class Solution {
+
+    int[] dx = {0,0,-1,1};
+    int[] dy = {-1,1,0,0};
+
     public int solution(int[][] maps) {
-        n = maps.length;
-        m = maps[0].length;
-        
         return bfs(maps);
     }
-    
-    private static int bfs(int[][] maps) {
-        Queue<int[]> queue = new LinkedList<>();
+
+    class Node {
+        int x, y, step;
+
+        public Node(int x, int y, int step) {
+            this.x = x;
+            this.y = y;
+            this.step = step;
+        }
+    }
+
+    private int bfs(int[][] maps) {
+
+        int n = maps.length;
+        int m = maps[0].length;
+
         boolean[][] visited = new boolean[n][m];
-        
-        queue.offer(new int[] {0, 0, 1}); // {x, y, distance}
         visited[0][0] = true;
-        
-        while (!queue.isEmpty()) {
-            int[] current = queue.poll();
-            int x = current[0];
-            int y = current[1];
-            int distance = current[2];
-            
-            if (x == n - 1 && y == m - 1) {
-                return distance;
-            }
-            
-            for (int[] direction : directions) {
-                int newX = x + direction[0];
-                int newY = y + direction[1];
-                
-                if (newX >= 0 && newY >= 0 && newX < n && newY < m && maps[newX][newY] == 1 && !visited[newX][newY]) {
-                    queue.offer(new int[] {newX, newY, distance + 1});
-                    visited[newX][newY] = true;
-                }
+
+        Queue<Node> que = new LinkedList<>();
+        que.offer(new Node(0,0, 1));
+
+        while (!que.isEmpty()) {
+
+            Node cur = que.poll();
+            // 상대방 진영에 도착하면 종료
+            if (cur.x == n-1 && cur.y == m-1) return cur.step;
+
+            // 동서남북 네 방향으로 이동
+            for (int i = 0; i < 4; i++) {
+                int nx = cur.x + dx[i];
+                int ny = cur.y + dy[i];
+
+                // 범위 안이고, 벽이 아니라면 이동
+                if (nx < 0 || nx >= n || ny < 0 || ny >= m || maps[nx][ny] == 0 || visited[nx][ny]) continue;
+
+                // 방문
+                visited[nx][ny] = true;
+                que.offer(new Node(nx, ny, cur.step+1));
             }
         }
-        
-        return -1; // No path found
+
+        return -1;
     }
 }
